@@ -1,0 +1,10 @@
+# Spring Boot Server Configuration
+server.port=8080
+server.servlet.context-path=/api
+
+# Application Name
+spring.application.name=api-aula-poo
+
+# Logging
+logging.level.root=INFO
+logging.level.com.educativo.apiaulapoo=DEBUG
