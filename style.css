@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Deportes Galindo</title>
+
+<style>
+
+/* =========================
+   ESTILOS GENERALES
+========================= */
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#111;
+  color:white;
+}
+
+/* HEADER */
+
+header{
+  background:black;
+  color:red;
+  text-align:center;
+  padding:20px;
+  border-bottom:3px solid red;
+}
+
+header h1{
+  margin:0;
+}
+
+/* CONTENEDOR */
+
+.contenedor{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  padding:20px;
+}
+
+/* PRODUCTOS */
+
+.producto{
+  background:#1c1c1c;
+  border:2px solid red;
+  border-radius:10px;
+  padding:15px;
+  text-align:center;
+  box-shadow:0 0 10px rgba(255,0,0,0.4);
+}
+
+.producto img{
+  width:150px;
+  height:150px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+button{
+  background:red;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:5px;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:hover{
+  background:darkred;
+}
+
+/* INVENTARIO */
+
+.panel{
+  background:#1c1c1c;
+  margin:20px;
+  padding:20px;
+  border-radius:10px;
+  border:2px solid red;
+}
+
+input{
+  padding:10px;
+  margin:5px;
+  border:none;
+  border-radius:5px;
+}
+
+/* TABLA */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+
+table th{
+  background:red;
+  color:white;
+  padding:10px;
+}
+
+table td{
+  border:1px solid #444;
+  padding:10px;
+  text-align:center;
+}
+
+/* CARRITO */
+
+.carrito{
+  position:fixed;
+  top:0;
+  right:0;
+  width:300px;
+  height:100%;
+  background:#222;
+  border-left:3px solid red;
+  padding:15px;
+  overflow:auto;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+  border-bottom:1px solid #555;
+  padding-bottom:5px;
+}
+
+#total{
+  color:red;
+  margin-top:15px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+
+<h1>🏆 Deportes Galindo</h1>
+
+<p>Inventario y Tienda Deportiva</p>
+
+</header>
+
+<!-- INVENTARIO -->
+
+<div class="panel">
+
+<h2>📦 Sistema de Inventario</h2>
+
+<input type="text" id="nombre" placeholder="Producto">
+
+<input type="number" id="precio" placeholder="Precio">
+
+<input type="number" id="stock" placeholder="Stock">
+
+<input type="text" id="imagen" placeholder="URL Imagen">
+
+<button onclick="agregarProducto()">
+Agregar Producto
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+  <th>Producto</th>
+  <th>Precio</th>
+  <th>Stock</th>
+  <th>Eliminar</th>
+</tr>
+
+</thead>
+
+<tbody id="tablaInventario"></tbody>
+
+</table>
+
+</div>
+
+<!-- PRODUCTOS -->
+
+<div class="contenedor" id="lista-productos"></div>
+
+<!-- CARRITO -->
+
+<div class="carrito">
+
+<h2>🛒 Carrito</h2>
+
+<div id="listaCarrito"></div>
+
+<h3 id="total">Total: $0</h3>
+
+</div>
+
+<script>
+
+/* =========================
+   INVENTARIO
+========================= */
+
+let productos =
+JSON.parse(localStorage.getItem("productos"))
+|| [
+
+{
+  nombre:"Zapatos Deportivos",
+  precio:120000,
+  stock:5,
+  imagen:"https://assets.adidas.com/images/w_600,f_auto,q_auto/aa0bd45abac541d29ff40b492e15cfa4_9366/Tenis_de_Running_Runfalcon_5_Negro_IH7758_HM1.jpg"
+},
+
+{
+  nombre:"Guayos Nike",
+  precio:180000,
+  stock:3,
+  imagen:"https://nikeco.vtexassets.com/arquivos/ids/866016/IB2356_001_A_PREM.jpg"
+}
+
+];
+
+/* =========================
+   VARIABLES
+========================= */
+
+let carrito = [];
+
+const contenedor =
+document.getElementById("lista-productos");
+
+const listaCarrito =
+document.getElementById("listaCarrito");
+
+const tablaInventario =
+document.getElementById("tablaInventario");
+
+/* =========================
+   MOSTRAR INVENTARIO
+========================= */
+
+function mostrarInventario(){
+
+  tablaInventario.innerHTML = "";
+
+  productos.forEach((p,i)=>{
+
+    tablaInventario.innerHTML += `
+
+      <tr>
+
+        <td>${p.nombre}</td>
+
+        <td>
+          $${p.precio.toLocaleString()}
+        </td>
+
+        <td>${p.stock}</td>
+
+        <td>
+
+          <button onclick="eliminarProducto(${i})">
+            ❌
+          </button>
+
+        </td>
+
+      </tr>
+
+    `;
+
+  });
+
+}
+
+/* =========================
+   MOSTRAR PRODUCTOS
+========================= */
+
+function mostrarProductos(){
+
+  contenedor.innerHTML = "";
+
+  productos.forEach((p,i)=>{
+
+    const div =
+    document.createElement("div");
+
+    div.classList.add("producto");
+
+    div.innerHTML = `
+
+      <h3>${p.nombre}</h3>
+
+      <img src="${p.imagen}">
+
+      <p>
+        $${p.precio.toLocaleString()}
+      </p>
+
+      <p>
+        Stock: ${p.stock}
+      </p>
+
+      <button
+        onclick="agregarAlCarrito(${i})"
+        ${p.stock===0 ? "disabled" : ""}
+      >
+
+      ${p.stock===0 ? "Sin Stock" : "Agregar"}
+
+      </button>
+
+    `;
+
+    contenedor.appendChild(div);
+
+  });
+
+}
+
+/* =========================
+   AGREGAR PRODUCTO
+========================= */
+
+function agregarProducto(){
+
+  const nombre =
+  document.getElementById("nombre").value;
+
+  const precio =
+  Number(document.getElementById("precio").value);
+
+  const stock =
+  Number(document.getElementById("stock").value);
+
+  const imagen =
+  document.getElementById("imagen").value;
+
+  if(
+    nombre === "" ||
+    precio <= 0 ||
+    stock < 0 ||
+    imagen === ""
+  ){
+
+    alert("Completa todos los campos");
+
+    return;
+  }
+
+  productos.push({
+    nombre,
+    precio,
+    stock,
+    imagen
+  });
+
+  guardarDatos();
+
+  limpiarInputs();
+
+}
+
+/* =========================
+   ELIMINAR PRODUCTO
+========================= */
+
+function eliminarProducto(i){
+
+  productos.splice(i,1);
+
+  guardarDatos();
+
+}
+
+/* =========================
+   AGREGAR AL CARRITO
+========================= */
+
+function agregarAlCarrito(i){
+
+  if(productos[i].stock > 0){
+
+    carrito.push(productos[i]);
+
+    productos[i].stock--;
+
+    guardarDatos();
+
+    mostrarCarrito();
+
+  }
+
+}
+
+/* =========================
+   MOSTRAR CARRITO
+========================= */
+
+function mostrarCarrito(){
+
+  listaCarrito.innerHTML = "";
+
+  let total = 0;
+
+  carrito.forEach((p,index)=>{
+
+    total += p.precio;
+
+    listaCarrito.innerHTML += `
+
+      <div class="item">
+
+        <span>${p.nombre}</span>
+
+        <span>
+
+          $${p.precio.toLocaleString()}
+
+          <span
+            onclick="quitarDelCarrito(${index})"
+            style="
+              color:red;
+              cursor:pointer;
+              margin-left:10px;
+            "
+          >
+            ❌
+          </span>
+
+        </span>
+
+      </div>
+
+    `;
+
+  });
+
+  document.getElementById("total").innerText =
+  "Total: $" + total.toLocaleString();
+
+}
+
+/* =========================
+   QUITAR DEL CARRITO
+========================= */
+
+function quitarDelCarrito(index){
+
+  const producto =
+  carrito[index];
+
+  const encontrado =
+  productos.find(
+    p => p.nombre === producto.nombre
+  );
+
+  if(encontrado){
+
+    encontrado.stock++;
+
+  }
+
+  carrito.splice(index,1);
+
+  guardarDatos();
+
+  mostrarCarrito();
+
+}
+
+/* =========================
+   GUARDAR DATOS
+========================= */
+
+function guardarDatos(){
+
+  localStorage.setItem(
+    "productos",
+    JSON.stringify(productos)
+  );
+
+  mostrarInventario();
+
+  mostrarProductos();
+
+}
+
+/* =========================
+   LIMPIAR INPUTS
+========================= */
+
+function limpiarInputs(){
+
+  document.getElementById("nombre").value = "";
+  document.getElementById("precio").value = "";
+  document.getElementById("stock").value = "";
+  document.getElementById("imagen").value = "";
+
+}
+
+/* =========================
+   INICIAR
+========================= */
+
+mostrarInventario();
+
+mostrarProductos();
+
+mostrarCarrito();
+
+</script>
+
+</body>
+</html>

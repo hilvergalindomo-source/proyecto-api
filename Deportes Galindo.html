@@ -1,0 +1,122 @@
+import json
+import urllib.request
+import urllib.error
+
+BASE = 'http://localhost:8080/api'
+
+
+def do(method, path, data=None, headers=None):
+    url = BASE + path
+    body = None
+    if data is not None:
+        body = json.dumps(data).encode('utf-8')
+    req = urllib.request.Request(url, data=body, method=method)
+    req.add_header('Accept', 'application/json')
+    if body is not None:
+        req.add_header('Content-Type', 'application/json')
+    if headers:
+        for k, v in headers.items():
+            req.add_header(k, v)
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            text = resp.read().decode('utf-8')
+            print('OK', method, path, resp.status)
+            print(text[:1200])
+            return resp.status, text
+    except urllib.error.HTTPError as e:
+        txt = e.read().decode('utf-8', errors='ignore')
+        print('HTTP', method, path, e.code)
+        print(txt[:1200])
+        return e.code, txt
+    except Exception as e:
+        print('ERR', method, path, e)
+        return None, str(e)
+
+
+def main():
+    print('--- Health ---')
+    do('GET', '/health')
+
+    print('\n--- Usuarios list ---')
+    do('GET', '/usuarios')
+
+    print('\n--- Usuario by ID ---')
+    do('GET', '/usuarios/1')
+
+    print('\n--- Create Usuario ---')
+    email = f'testapi_{int(__import__("time").time())}@example.com'
+    status, text = do('POST', '/usuarios', {
+        'nombre': 'Test User API',
+        'correo': email,
+        'edad': 30,
+        'rol': 'user',
+        'estado': True,
+        'contraseña': 'pass1234'
+    })
+    created_user = None
+    if status in (200, 201):
+        try:
+            created_user = json.loads(text)
+        except Exception:
+            created_user = None
+    print('created_user', created_user)
+
+    print('\n--- Create invalid Usuario ---')
+    do('POST', '/usuarios', {'nombre': '', 'correo': 'bad', 'edad': 0})
+
+    print('\n--- Login ---')
+    do('POST', '/usuarios/login', {'correo': 'usuario1@email.com', 'contraseña': 'qweqweqwe'})
+
+    if created_user and 'id' in created_user:
+        uid = created_user['id']
+        print(f'\n--- Update Usuario {uid} ---')
+        do('PUT', f'/usuarios/{uid}', {
+            'nombre': 'Test User API Updated',
+            'correo': created_user.get('correo'),
+            'edad': 31,
+            'rol': 'admin',
+            'estado': False,
+            'contraseña': 'pass1234'
+        })
+        print(f'\n--- Delete Usuario {uid} ---')
+        do('DELETE', f'/usuarios/{uid}')
+
+    print('\n--- Productos list ---')
+    do('GET', '/productos')
+
+    print('\n--- Producto by ID ---')
+    do('GET', '/productos/1')
+
+    print('\n--- Create Producto ---')
+    status, text = do('POST', '/productos', {
+        'nombre': 'Test Product API',
+        'precio': 123.45,
+        'stock': 5,
+        'categoria': 'Test'
+    })
+    created_prod = None
+    if status in (200, 201):
+        try:
+            created_prod = json.loads(text)
+        except Exception:
+            created_prod = None
+    print('created_prod', created_prod)
+
+    print('\n--- Create invalid Producto ---')
+    do('POST', '/productos', {'nombre': '', 'precio': -10, 'stock': -1})
+
+    if created_prod and 'id' in created_prod:
+        pid = created_prod['id']
+        print(f'\n--- Update Producto {pid} ---')
+        do('PUT', f'/productos/{pid}', {
+            'nombre': 'Test Product API Updated',
+            'precio': 200.0,
+            'stock': 10,
+            'categoria': 'Updated'
+        })
+        print(f'\n--- Delete Producto {pid} ---')
+        do('DELETE', f'/productos/{pid}')
+
+
+if __name__ == '__main__':
+    main()

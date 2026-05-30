@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+  <body>
+
+    <header>
+        <h1> Deportes Galindo</h1>
+
+        <nav>
+            <a href="inventario.html">Inventario</a>
+            <a href="usuarios.html">Usuarios</a>
+        </nav>
+    </header>
+
+    <div class="contenedor">
+
+        <div class="caja">
+
+            <h2>Bienvenido a nuestra tienda</h2>
+
+            <p class="bienvenida">
+                Encuentra los mejores artículos deportivos al mejor precio.
+            </p>
+
+            <!-- INICIAR SESIÓN -->
+            <h3>Iniciar Sesión</h3>
+
+            <form id="loginForm">
+
+                <input type="text" id="login-correo" placeholder="Usuario" required>
+
+                <input type="password" id="login-password" placeholder="Contraseña" required>
+
+                <button type="submit">Entrar</button>
+
+            </form>
+
+            <p style="margin-top: 15px;">
+              ¿No tienes cuenta? <a href="Registro.html" style="color: red; text-decoration: none;">Regístrate</a>
+            </p>
+
+            <hr>
+
+            <img src="1778550704.png" alt="Logo Deportes Galindo" width="250">
+
+        </div>
+
+    </div>
+
+</body>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+
+        header {
+            background-color: black;
+            color: red;
+            padding: 20px;
+            border-bottom: 4px solid red;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 10px;
+            font-weight: bold;
+            background-color: red;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+
+        nav a:hover {
+            background-color: darkred;
+        }
+
+        .contenedor {
+            margin-top: 30px;
+        }
+
+        .caja {
+            background-color: #1c1c1c;
+            width: 350px;
+            margin: auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px red;
+            border: 2px solid red;
+        }
+
+        h2, h3 {
+            color: red;
+        }
+
+        .bienvenida {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid red;
+            background-color: black;
+            color: white;
+        }
+
+        input::placeholder {
+            color: #bbb;
+        }
+
+        button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
+
+        hr {
+            border: 1px solid red;
+            margin: 25px 0;
+        }
+
+        img {
+            margin-top: 20px;
+        }
+    </style>
+
+<script>
+  const API_BASE_URL = "http://127.0.0.1:8080/api";
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const correo = document.getElementById('login-correo').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      if (!correo || !password) {
+        alert('Completa los campos de login');
+        return;
+      }
+      try {
+        const respuesta = await fetch(`${API_BASE_URL}/usuarios/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo, contraseña: password })
+        });
+        const data = await respuesta.json().catch(() => null);
+        if (!respuesta.ok) {
+          throw new Error(data?.mensaje || data?.error || 'Usuario o contraseña incorrectos');
+        }
+        window.location.href = 'dashboard.html';
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  }
+</script>
+
+</html>

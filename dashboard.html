@@ -1,0 +1,116 @@
+# API Endpoints
+
+Esta documentación resume los endpoints disponibles para la API del proyecto y los métodos que se pueden usar para probarlos.
+
+## Base URL
+
+- `http://localhost:8080/api`
+
+## Health
+
+- `GET /health`
+  - Respuesta de ejemplo:
+    ```json
+    {
+      "estado": "UP",
+      "mensaje": "La aplicación está funcionando correctamente"
+    }
+    ```
+
+## Usuarios
+
+- `GET /usuarios`
+  - Devuelve la lista de usuarios.
+
+- `GET /usuarios/{id}`
+  - Devuelve un usuario por su `id`.
+
+- `POST /usuarios`
+  - Crea un nuevo usuario.
+  - Ejemplo de body JSON:
+    ```json
+    {
+      "nombre": "Juan Perez",
+      "correo": "juan@email.com",
+      "edad": 22,
+      "rol": "user",
+      "estado": true,
+      "contraseña": "juan123"
+    }
+    ```
+
+- `PUT /usuarios/{id}`
+  - Actualiza un usuario existente.
+  - Ejemplo de body JSON:
+    ```json
+    {
+      "nombre": "Juan Actualizado",
+      "correo": "juan.actualizado@email.com",
+      "edad": 23,
+      "rol": "admin",
+      "estado": false,
+      "contraseña": "nueva123"
+    }
+    ```
+
+- `DELETE /usuarios/{id}`
+  - Elimina un usuario por su `id`.
+
+- `POST /usuarios/login`
+  - Inicia sesión con correo y contraseña.
+  - Ejemplo de body JSON:
+    ```json
+    {
+      "correo": "usuario1@email.com",
+      "contraseña": "qweqweqwe"
+    }
+    ```
+
+## Productos
+
+- `GET /productos`
+  - Devuelve la lista de productos.
+
+- `GET /productos/{id}`
+  - Devuelve un producto por su `id`.
+
+- `POST /productos`
+  - Crea un nuevo producto.
+  - Ejemplo de body JSON:
+    ```json
+    {
+      "nombre": "Laptop",
+      "precio": 1200.5,
+      "stock": 10,
+      "categoria": "Electrónica"
+    }
+    ```
+
+- `PUT /productos/{id}`
+  - Actualiza un producto existente.
+  - Ejemplo de body JSON:
+    ```json
+    {
+      "nombre": "Laptop Pro",
+      "precio": 1500.0,
+      "stock": 7,
+      "categoria": "Computadoras"
+    }
+    ```
+
+- `DELETE /productos/{id}`
+  - Elimina un producto por su `id`.
+
+## Pruebas automáticas
+
+Se agregó un script de prueba en el proyecto:
+
+- `api_test.py`
+
+Para ejecutar las pruebas en Windows:
+
+```powershell
+py api_test.py
+```
+
+El script verifica `GET`, `POST`, `PUT`, `DELETE` y casos inválidos para usuarios y productos.

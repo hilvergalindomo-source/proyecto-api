@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<!-- saved from url=(0036)http://127.0.0.1:5501/productos.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title> Deportes Galindo</title>
+
+<style>
+
+body{
+  font-family: Arial;
+  background:#111;
+  color:white;
+  margin:0;
+  text-align:center;
+}
+
+/* TITULO */
+
+h1{
+  background:black;
+  color:red;
+  padding:20px;
+  margin:0;
+}
+
+/* PRODUCTOS */
+
+.contenedor{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  padding:20px;
+}
+
+.producto{
+  background:#1c1c1c;
+  border:2px solid red;
+  border-radius:10px;
+  padding:15px;
+  box-shadow:0 0 10px red;
+}
+
+.producto img{
+  width:150px;
+  height:150px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+button{
+  background:red;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:5px;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:hover{
+  background:darkred;
+}
+
+.api-panel{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+  padding:20px;
+  justify-items:center;
+}
+
+.form-box{
+  background:#1c1c1c;
+  border:2px solid red;
+  border-radius:12px;
+  padding:20px;
+  width:100%;
+  max-width:520px;
+  text-align:left;
+}
+
+.form-box h2{
+  margin-top:0;
+  color:#ff7070;
+}
+
+.form-box label{
+  display:block;
+  margin:12px 0 6px;
+  text-transform:uppercase;
+  font-size:13px;
+  color:#bbb;
+}
+
+.form-box input{
+  width:100%;
+  padding:10px;
+  border:1px solid #444;
+  border-radius:6px;
+  background:#111;
+  color:white;
+}
+
+.form-box button{
+  width:100%;
+  margin-top:14px;
+}
+
+#api-mensajes{
+  max-width:1100px;
+  margin:0 auto 20px;
+  padding:14px 18px;
+  border-radius:10px;
+  background:#0f0f0f;
+  text-align:left;
+  color:#fff;
+}
+
+#api-mensajes.error{
+  border:1px solid #d9534f;
+  background:#2f1b1b;
+  color:#f8d7da;
+}
+
+#api-mensajes.success{
+  border:1px solid #5cb85c;
+  background:#1b2f1b;
+  color:#d4edda;
+}
+
+#api-mensajes.loading{
+  border:1px solid #5bc0de;
+  background:#1b2430;
+  color:#cce5ff;
+}
+
+/* CARRITO */
+
+.carrito{
+  position:fixed;
+  top:0;
+  right:0;
+  width:320px;
+  height:100%;
+  background:#222;
+  padding:20px;
+  overflow-y:auto;
+  box-shadow:-5px 0 10px rgba(0,0,0,0.5);
+}
+
+.cerrar{
+  float:right;
+  cursor:pointer;
+  font-size:22px;
+  color:red;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+  border-bottom:1px solid #555;
+  padding-bottom:5px;
+}
+
+#total{
+  margin-top:15px;
+  font-size:20px;
+  color:red;
+}
+
+.vacio{
+  color:#ccc;
+}
+
+#confirmacion-pago{
+  margin-top:15px;
+  color:lightgreen;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🏆 Deportes Galindo</h1>
+
+<section class="api-panel">
+
+  <div class="form-box">
+    <h2>Registrar Usuario</h2>
+    <form id="registro-form">
+      <label for="usuario-nombre">Nombre</label>
+      <input id="usuario-nombre" name="nombre" type="text" placeholder="Juan Pérez" required>
+      <label for="usuario-correo">Correo</label>
+      <input id="usuario-correo" name="correo" type="email" placeholder="correo@dominio.com" required>
+      <label for="usuario-edad">Edad</label>
+      <input id="usuario-edad" name="edad" type="number" min="0" placeholder="30" required>
+      <label for="usuario-rol">Rol</label>
+      <select id="usuario-rol" name="rol" required>
+        <option value="USER" selected>USER</option>
+        <option value="ADMIN">ADMIN</option>
+      </select>
+      <label for="usuario-estado">Activo</label>
+      <input id="usuario-estado" name="estado" type="checkbox" checked>
+      <label for="usuario-contrasena">Contraseña</label>
+      <input id="usuario-contrasena" name="contraseña" type="password" placeholder="Contraseña segura" required>
+      <button type="submit">Registrar usuario</button>
+    </form>
+  </div>
+
+  <div class="form-box">
+    <h2>Agregar producto</h2>
+    <form id="producto-form">
+      <label for="producto-nombre">Nombre</label>
+      <input id="producto-nombre" name="nombre" type="text" placeholder="Nombre del producto" required>
+      <label for="producto-precio">Precio</label>
+      <input id="producto-precio" name="precio" type="number" placeholder="120000" required>
+      <label for="producto-stock">Stock</label>
+      <input id="producto-stock" name="stock" type="number" min="0" placeholder="10" required>
+      <label for="producto-categoria">Categoría</label>
+      <input id="producto-categoria" name="categoria" type="text" placeholder="Calzado" required>
+      <label for="producto-imagen">URL de imagen</label>
+      <input id="producto-imagen" name="imagen" type="url" placeholder="https://..." required>
+      <button type="submit">Enviar producto</button>
+    </form>
+    <button id="btn-refrescar" type="button" style="margin-top:12px;">Actualizar lista de productos</button>
+  </div>
+
+</section>
+
+<div id="api-mensajes" class="success">Carga inicial en curso...</div>
+
+<div class="form-box" style="max-width:1100px; margin:0 auto 20px;">
+  <h2>Usuarios guardados</h2>
+  <pre id="usuarios-json" style="white-space:pre-wrap; word-wrap:break-word; background:#000; padding:12px; border:1px solid #444; border-radius:10px; min-height:140px; color:#fff; overflow:auto;"></pre>
+</div>
+
+<div class="contenedor" id="lista-productos"></div>
+
+<!-- CARRITO -->
+
+<div class="carrito" id="carrito">
+
+<span class="cerrar" onclick="cerrarCarrito()">✖</span>
+
+<h2>🛒 Carrito</h2>
+
+<div id="lista"><p class="vacio">Tu carrito está vacío</p></div>
+
+<h3 id="total">Total: $0</h3>
+
+<button id="btn-pagar" onclick="mostrarPagos()" style="display: none;">
+  Proceder al Pago
+</button>
+
+<!-- PAGOS -->
+
+<div id="medios-pago" style="display:none; margin-top:15px;">
+
+  <h3>Método de Pago</h3>
+
+  <button onclick="seleccionarPago('Nequi')">
+    Nequi
+  </button>
+
+  <button onclick="seleccionarPago('Bancolombia')">
+    Bancolombia
+  </button>
+
+  <button onclick="seleccionarPago('Tarjeta')">
+    Tarjeta
+  </button>
+
+</div>
+
+<div id="confirmacion-pago"></div>
+
+</div>
+
+<script>
+
+const API_BASE_URL = "http://localhost:8080";
+let contenedor;
+let mensajes;
+let registroForm;
+let productoForm;
+let btnRefrescar;
+
+let productos = [
+  {
+    nombre:"Zapatos Deportivos",
+    precio:120000,
+    imagen:"https://assets.adidas.com/images/w_600,f_auto,q_auto/aa0bd45abac541d29ff40b492e15cfa4_9366/Tenis_de_Running_Runfalcon_5_Negro_IH7758_HM1.jpg"
+  },
+  {
+    nombre:"Camiseta Negra",
+    precio:55000,
+    imagen:"https://tennis.vtexassets.com/arquivos/ids/2416880-800-auto"
+  },
+  {
+    nombre:"Reloj Elegante",
+    precio:250000,
+    imagen:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtrwAguScvd0SNwyvDl09bwZ-6GvZazQCuWQ&s"
+  },
+  {
+    nombre:"Guayos Nike",
+    precio:123000,
+    imagen:"https://nikeco.vtexassets.com/arquivos/ids/866016/IB2356_001_A_PREM.jpg"
+  },
+  {
+    nombre:"Gorra Adidas",
+    precio:45000,
+    imagen:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2Vu5Z8dhnBM3NdP8rcOkRm5p_tCSCqtOULA&s"
+  },
+  {
+    nombre:"Sudadera Deportiva",
+    precio:180000,
+    imagen:"https://agaval.vtexassets.com/arquivos/ids/1457269-800-600?v=638448400326400000&width=800&height=600&aspect=true"
+  },
+  {
+    nombre:"Chaqueta",
+    precio:200000,
+    imagen:"https://www.tradeinn.com/f/13709/137095846/nike-chaqueta-sportswear.webp"
+  }
+];
+let carrito = [];
+let usuarios = JSON.parse(localStorage.getItem("usuariosJson") || "[]");
+
+function mostrarMensaje(texto, tipo = "success") {
+  mensajes.textContent = texto;
+  mensajes.className = tipo;
+}
+
+function guardarUsuariosLocal() {
+  localStorage.setItem("usuariosJson", JSON.stringify(usuarios, null, 2));
+  renderUsuarios();
+}
+
+function renderUsuarios() {
+  const usuariosDiv = document.getElementById("usuarios-json");
+  if (!usuariosDiv) return;
+  usuariosDiv.textContent = JSON.stringify(usuarios, null, 2);
+}
+
+function validarCampos(obj) {
+  for (const campo in obj) {
+    if (!obj[campo] || String(obj[campo]).trim() === "") {
+      return false;
+    }
+  }
+  return true;
+}
+
+function renderProductos() {
+  contenedor.innerHTML = "";
+  if (!productos || productos.length === 0) {
+    contenedor.innerHTML = "<p class='vacio'>No hay productos para mostrar.</p>";
+    return;
+  }
+  productos.forEach((producto, index) => {
+    const div = document.createElement("div");
+    div.classList.add("producto");
+    div.innerHTML = `
+      <h3>${producto.nombre}</h3>
+      <img src="${producto.imagen}" alt="${producto.nombre}">
+      <p>$${Number(producto.precio).toLocaleString()}</p>
+      <button type="button" onclick="agregar(${index})">Agregar</button>
+    `;
+    contenedor.appendChild(div);
+  });
+}
+
+async function obtenerProductosBackend() {
+  mostrarMensaje("Buscando productos en el servidor...", "loading");
+  try {
+    const respuesta = await fetch(`${API_BASE_URL}/productos`);
+    if (!respuesta.ok) {
+      throw new Error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+    }
+    const data = await respuesta.json();
+    if (!Array.isArray(data)) {
+      throw new Error("La respuesta de productos no es una lista válida.");
+    }
+    productos = data.map(item => ({
+      nombre: item.nombre || item.name || "Producto",
+      precio: Number(item.precio ?? item.price ?? 0),
+      imagen: item.imagen || item.urlImagen || item.image || "https://via.placeholder.com/250x250?text=Sin+imagen"
+    }));
+    renderProductos();
+    mostrarMensaje("Lista de productos actualizada desde el backend.", "success");
+  } catch (error) {
+    renderProductos();
+    mostrarMensaje(`No se pudo cargar productos: ${error.message}`, "error");
+  }
+}
+
+async function registrarUsuario(event) {
+  event.preventDefault();
+  const nombre = document.getElementById("usuario-nombre").value.trim();
+  const correo = document.getElementById("usuario-correo").value.trim();
+  const edad = parseInt(document.getElementById("usuario-edad").value, 10) || 0;
+  const rol = document.getElementById("usuario-rol").value;
+  const estado = document.getElementById("usuario-estado").checked;
+  const contrasena = document.getElementById("usuario-contrasena").value.trim();
+
+  const usuario = { nombre, correo, edad, rol, estado, "contraseña": contrasena };
+
+  if (!validarCampos({ nombre, correo, "contraseña": contrasena, rol }) || edad <= 0) {
+    mostrarMensaje("Por favor completa todos los campos de registro y usa una edad válida.", "error");
+    return;
+  }
+
+  try {
+    mostrarMensaje("Registrando usuario...", "loading");
+    const respuesta = await fetch(`${API_BASE_URL}/usuarios`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(usuario)
+    });
+    if (!respuesta.ok) {
+      const errorData = await respuesta.json().catch(() => null);
+      throw new Error(errorData?.mensaje || errorData?.error || `Error ${respuesta.status}`);
+    }
+    const creado = await respuesta.json().catch(() => null);
+    registroForm.reset();
+    usuarios.push(creado || usuario);
+    guardarUsuariosLocal();
+    mostrarMensaje("Usuario registrado correctamente.", "success");
+  } catch (error) {
+    mostrarMensaje(`Error al registrar usuario: ${error.message}`, "error");
+  }
+}
+
+async function agregarProductoBackend(event) {
+  event.preventDefault();
+  const nombre = document.getElementById("producto-nombre").value.trim();
+  const precio = Number(document.getElementById("producto-precio").value);
+  const stock = parseInt(document.getElementById("producto-stock").value, 10) || 0;
+  const categoria = document.getElementById("producto-categoria").value.trim();
+  const imagen = document.getElementById("producto-imagen").value.trim();
+
+  const producto = { nombre, precio, stock, categoria };
+  if (!validarCampos({ nombre, categoria }) || precio <= 0 || stock < 0) {
+    mostrarMensaje("Por favor completa todos los campos del producto y usa valores válidos.", "error");
+    return;
+  }
+  try {
+    mostrarMensaje("Enviando producto al backend...", "loading");
+    const respuesta = await fetch(`${API_BASE_URL}/productos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(producto)
+    });
+    if (!respuesta.ok) {
+      const errorData = await respuesta.json().catch(() => null);
+      throw new Error(errorData?.mensaje || errorData?.error || `Error ${respuesta.status}`);
+    }
+    const creado = await respuesta.json().catch(() => null);
+    productoForm.reset();
+    mostrarMensaje("Producto agregado correctamente.", "success");
+    await obtenerProductosBackend();
+  } catch (error) {
+    mostrarMensaje(`Error al agregar producto: ${error.message}`, "error");
+  }
+}
+
+function agregar(index) {
+  if (!productos[index]) {
+    mostrarMensaje("Producto no encontrado para agregar al carrito.", "error");
+    return;
+  }
+  carrito.push(productos[index]);
+  actualizarCarrito();
+  mostrarMensaje(`Producto "${productos[index].nombre}" agregado al carrito.`, "success");
+}
+
+function actualizarCarrito() {
+  const lista = document.getElementById("lista");
+  let total = 0;
+  lista.innerHTML = "";
+  if (carrito.length === 0) {
+    lista.innerHTML = "<p class='vacio'>Tu carrito está vacío</p>";
+    document.getElementById("btn-pagar").style.display = "none";
+  } else {
+    document.getElementById("btn-pagar").style.display = "block";
+  }
+  carrito.forEach((producto, i) => {
+    total += Number(producto.precio) || 0;
+    lista.innerHTML += `
+      <div class="item">
+        <span>${producto.nombre}</span>
+        <span>
+          $${Number(producto.precio).toLocaleString()}
+          <span onclick="eliminarItem(${i})" style="color:red;cursor:pointer;">✖</span>
+        </span>
+      </div>
+    `;
+  });
+  document.getElementById("total").innerText = "Total: $" + total.toLocaleString();
+}
+
+function eliminarItem(i) {
+  carrito.splice(i, 1);
+  actualizarCarrito();
+}
+
+function mostrarPagos() {
+  document.getElementById("medios-pago").style.display = "block";
+}
+
+function seleccionarPago(metodo) {
+  document.getElementById("confirmacion-pago").innerHTML = `
+    ✅ Pago realizado con <strong>${metodo}</strong><br><br>Gracias por comprar.
+  `;
+  carrito = [];
+  actualizarCarrito();
+  setTimeout(() => {
+    document.getElementById("medios-pago").style.display = "none";
+    document.getElementById("confirmacion-pago").innerHTML = "";
+  }, 3000);
+}
+
+function cerrarCarrito() {
+  document.getElementById("carrito").style.display = "none";
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  contenedor = document.getElementById("lista-productos");
+  mensajes = document.getElementById("api-mensajes");
+  registroForm = document.getElementById("registro-form");
+  productoForm = document.getElementById("producto-form");
+  btnRefrescar = document.getElementById("btn-refrescar");
+
+  if (!contenedor || !mensajes || !registroForm || !productoForm || !btnRefrescar) {
+    console.error("No se pudieron encontrar los elementos principales del DOM.");
+    return;
+  }
+
+  registroForm.addEventListener("submit", registrarUsuario);
+  productoForm.addEventListener("submit", agregarProductoBackend);
+  btnRefrescar.addEventListener("click", obtenerProductosBackend);
+
+  renderUsuarios();
+  obtenerProductosBackend();
+  actualizarCarrito();
+});
+
+</script>
+
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+</body></html>
